@@ -1,7 +1,3 @@
-
----
-
-```md
 # 🗂️ Task Manager Web Application
 
 A modern and user-friendly **Task Management Web Application** designed to help users efficiently create, organize, and track their tasks.  
@@ -19,13 +15,13 @@ It is built using modern web technologies with a focus on **scalability, maintai
 ## 📸 Project Screenshots
 
 ### Dashboard
-![Dashboard](images/Dashboard.jpeg)
+<img src="images/Dashbord.jpeg" width="800"/> <br/>
 
 ### Task Management
-![Tasks](images/Tasks.jpeg)
+<img src="images/Tasks.jpeg" width="800"/><br/>
 
 ### Database (MongoDB)
-![MongoDB](images/MongoDB.jpeg)
+<img src="images/MongoDB.jpeg" width="800"/><br/>
 
 ---
 
@@ -66,92 +62,14 @@ It is built using modern web technologies with a focus on **scalability, maintai
 ---
 
 ## 📂 Project Structure
-
-```
-
 task-manager/
 ├── images/
-│   ├── Dashboard.jpeg
-│   ├── Tasks.jpeg
-│   └── MongoDB.jpeg
+│ ├── Dashboard.jpg
+│ ├── Tasks.jpg
+│ └── MongoDB.jpg
 ├── backend/
-│   ├── manage.py
-│   ├── app/
-│   └── requirements.txt
 ├── frontend/
-│   ├── index.html
-│   ├── css/
-│   └── js/
 └── README.md
-
-````
-
----
-
-## ⚙️ Installation & Setup
-
-### 1️⃣ Clone the Repository
-```bash
-git clone https://github.com/VivekGhule/Task_Manger.git
-cd Task_Manger
-````
-
-### 2️⃣ Create and Activate Virtual Environment
-
-```bash
-python -m venv venv
-source venv/bin/activate    # Windows: venv\Scripts\activate
-```
-
-### 3️⃣ Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4️⃣ Configure Environment Variables
-
-Create a `.env` file:
-
-```env
-MONGO_URI=your_mongodb_connection_string
-SECRET_KEY=your_django_secret_key
-```
-
-### 5️⃣ Run the Application
-
-```bash
-python manage.py runserver
-```
-
----
-
-## 📈 Future Enhancements
-
-* User authentication and authorization
-* Task reminders and notifications
-* Role-based access control
-* Advanced analytics and reports
-* Cloud deployment (AWS / Azure)
-
----
-
-## 👨‍💻 Author
-
-**Vivek Ghule**
-
-* GitHub: [https://github.com/VivekGhule](https://github.com/VivekGhule)
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License**.
-You are free to use, modify, and distribute this project.
-
----
-
-⭐ If you find this project useful, consider giving it a **star** on GitHub.
 
 
 
