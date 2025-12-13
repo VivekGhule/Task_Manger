@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Task Manager - TaskHub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* your original CSS kept, minor tidy */
+    @keyframes slideIn { from { opacity:0; transform:translateY(-10px) } to { opacity:1; transform:translateY(0) } }
+    @keyframes fadeOut { from { opacity:1 } to { opacity:0 } }
+    .animate-slide-in { animation: slideIn 0.28s ease-out; }
+    .animate-fade-out { animation: fadeOut 0.28s ease-out; }
+    .task-card { transition: all 0.25s ease; }
+    .task-card:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    .priority-high { border-left-color: #ef4444; background: linear-gradient(135deg, rgba(239,68,68,0.05) 0%, transparent 100%); }
+    .priority-medium { border-left-color: #f59e0b; background: linear-gradient(135deg, rgba(245,158,11,0.05) 0%, transparent 100%); }
+    .priority-low { border-left-color: #10b981; background: linear-gradient(135deg, rgba(16,185,129,0.05) 0%, transparent 100%); }
+    .checkbox-custom:checked { background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e"); }
+    .loader { border: 4px solid #f3f4f6; border-top: 4px solid #3b82f6; border-radius: 50%; width: 36px; height: 36px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg) } 100% { transform: rotate(360deg) } }
+    .badge { display:inline-block; padding:0.25rem 0.75rem; border-radius:9999px; font-size:.75rem; font-weight:600; text-transform:uppercase; }
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen text-gray-800">
+
+<!-- Navigation Bar -->
+<nav class="sticky top-0 z-50 bg-white/10 backdrop-blur-md border-b border-white/20 shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+          </svg>
+        </div>
+        <h1 class="text-2xl font-bold text-white">TaskHub</h1>
+      </div>
+      <div id="connectionStatus" class="flex items-center gap-2 px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm border border-green-500/30" role="status" aria-live="polite">
+        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+        Connected
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-8">
+    <h2 class="text-4xl font-bold text-white mb-2">Welcome back! 👋</h2>
+    <p class="text-gray-400">Organize and manage your tasks efficiently</p>
+  </div>
+
+  <div class="grid lg:grid-cols-3 gap-8">
+    <!-- Left Sidebar - Add Task -->
+    <div class="lg:col-span-1">
+      <div class="bg-white rounded-2xl shadow-2xl p-6 sticky top-24" id="addTaskCard">
+        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 11-2 0 1 1 0 012 0zm0 4a1 1 0 11-2 0 1 1 0 012 0zm4-4a1 1 0 11-2 0 1 1 0 012 0zm0 4a1 1 0 11-2 0 1 1 0 012 0z" clip-rule="evenodd"></path>
+          </svg>
+          Add Task
+        </h3>
+
+        <form id="addTaskForm" class="space-y-4" novalidate>
+          <div>
+            <label for="taskTitle" class="block text-sm font-medium text-gray-700 mb-2">Task Title</label>
+            <input id="taskTitle" name="title" type="text" placeholder="What needs to be done?"
+              class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition" required aria-required="true" />
+          </div>
+
+          <div>
+            <label for="taskDescription" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <textarea id="taskDescription" name="description" placeholder="Add more details..." rows="3"
+              class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition resize-none"></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="taskPriority" class="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+              <select id="taskPriority" name="priority" class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition">
+                <option value="low">🟢 Low</option>
+                <option value="medium" selected>🟡 Medium</option>
+                <option value="high">🔴 High</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="taskDueDate" class="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
+              <input type="date" id="taskDueDate" name="due_date" class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition" />
+            </div>
+          </div>
+
+          <button id="addTaskBtn" type="submit" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2" aria-live="polite">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            <span id="addBtnText">Add Task</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right area -->
+    <div class="lg:col-span-2 space-y-6">
+      <!-- Stats -->
+      <div class="grid grid-cols-3 gap-4">
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-blue-100 text-sm">Total Tasks</p>
+              <p class="text-3xl font-bold" id="totalTasks">0</p>
+            </div>
+            <svg class="w-12 h-12 text-blue-300 opacity-50" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path></svg>
+          </div>
+        </div>
+        <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl p-4 text-white shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-yellow-100 text-sm">Pending</p>
+              <p class="text-3xl font-bold" id="pendingTasks">0</p>
+            </div>
+            <svg class="w-12 h-12 text-yellow-300 opacity-50" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16z"></path></svg>
+          </div>
+        </div>
+        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-green-100 text-sm">Completed</p>
+              <p class="text-3xl font-bold" id="completedTasks">0</p>
+            </div>
+            <svg class="w-12 h-12 text-green-300 opacity-50" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16z"></path></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="bg-white rounded-2xl shadow-lg p-4">
+        <div class="flex flex-wrap gap-2 items-center">
+          <div role="tablist" class="flex gap-2">
+            <button class="filter-btn active px-4 py-2 rounded-lg font-medium transition transform hover:scale-105 bg-blue-600 text-white" data-filter="all" role="tab" aria-selected="true">📋 All</button>
+            <button class="filter-btn px-4 py-2 rounded-lg font-medium transition transform hover:scale-105 text-gray-700" data-filter="pending" role="tab">⏳ Pending</button>
+            <button class="filter-btn px-4 py-2 rounded-lg font-medium transition transform hover:scale-105 text-gray-700" data-filter="completed" role="tab">✓ Completed</button>
+            <button class="filter-btn px-4 py-2 rounded-lg font-medium transition transform hover:scale-105 text-gray-700" data-filter="high" role="tab">🔴 High Priority</button>
+          </div>
+          <button id="clearCompletedBtn" class="ml-auto px-4 py-2 rounded-lg font-medium bg-red-500 hover:bg-red-600 text-white transition transform hover:scale-105">🗑️ Clear Completed</button>
+        </div>
+      </div>
+
+      <!-- Tasks List -->
+      <div class="space-y-4">
+        <div id="tasksContainer" class="space-y-3">
+          <div class="flex justify-center py-12">
+            <div class="loader" aria-hidden="true"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty -->
+      <div id="emptyState" class="hidden text-center py-12">
+        <svg class="w-24 h-24 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"></path></svg>
+        <p class="text-gray-400 text-lg">No tasks yet. Create one to get started! ✨</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toasts -->
+<div id="successToast" class="hidden fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-slide-in" role="status" aria-live="polite">
+  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+  <span id="toastMessage">Task added successfully!</span>
+</div>
+
+<div id="errorToast" class="hidden fixed bottom-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-slide-in" role="alert" aria-live="assertive">
+  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+  <span id="errorMessage">Something went wrong!</span>
+</div>
+
+<script>
+/*
+  Improved frontend JS:
+  - Small API wrapper with timeout
+  - Event delegation for actions
+  - Per-action UI states and error handling
+  - Exponential backoff polling when backend is down
+*/
+
+/* =========================
+   Config: set API_URL here
+   If backend is on same origin use:
+     const API_URL = `${location.origin}/api`;
+   If backend on different port, change to explicit host:port
+========================= */
+
+// auto-detect origin; override if backend runs on different port
+const API_URL = '/api';
+
+
+// simple timeout wrapper for fetch
+async function fetchWithTimeout(url, options = {}, timeout = 8000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  options.signal = controller.signal;
+  try {
+    const res = await fetch(url, options);
+    clearTimeout(id);
+    return res;
+  } catch (err) {
+    clearTimeout(id);
+    throw err;
+  }
+}
+
+/* =========================
+   API wrapper
+========================= */
+const api = {
+  async getTasks({ status_filter, priority_filter } = {}) {
+    const params = new URLSearchParams();
+    if (status_filter) params.set('status_filter', status_filter);
+    if (priority_filter) params.set('priority_filter', priority_filter);
+    const url = `${API_URL}/tasks${params.toString() ? `?${params.toString()}` : ''}`;
+    const res = await fetchWithTimeout(url, { method: 'GET', headers: { 'Accept': 'application/json' } }, 7000);
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
+    return res.json();
+  },
+
+  async createTask(payload) {
+    const res = await fetchWithTimeout(`${API_URL}/tasks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }, 8000);
+    if (!res.ok) {
+      const text = await res.text().catch(()=>null);
+      throw new Error(text || `Status ${res.status}`);
+    }
+    return res.json();
+  },
+
+  async updateTask(id, payload) {
+    const res = await fetchWithTimeout(`${API_URL}/tasks/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }, 7000);
+    if (!res.ok) {
+      const body = await res.json().catch(()=>null);
+      throw new Error(body?.detail || `Status ${res.status}`);
+    }
+    return res.json();
+  },
+
+  async deleteTask(id) {
+    const res = await fetchWithTimeout(`${API_URL}/tasks/${id}`, { method: 'DELETE' }, 7000);
+    if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
+    return res.json();
+  },
+
+  async clearCompleted() {
+    const res = await fetchWithTimeout(`${API_URL}/tasks/completed/all`, { method: 'DELETE' }, 7000);
+    if (!res.ok) throw new Error(`Clear failed: ${res.status}`);
+    return res.json();
+  }
+};
+
+/* =========================
+   State & UI helpers
+========================= */
+let tasks = [];
+let filteredTasks = [];
+let currentFilter = 'all';
+let pollingInterval = 5000;         // normal poll
+let pollingAttempts = 0;            // used for backoff on errors
+const MAX_BACKOFF = 60000;          // 60s
+
+function byId(id) { return document.getElementById(id); }
+function showSuccess(message) {
+  const toast = byId('successToast');
+  byId('toastMessage').textContent = message;
+  toast.classList.remove('hidden');
+  setTimeout(()=> toast.classList.add('hidden'), 3000);
+}
+function showError(message) {
+  const toast = byId('errorToast');
+  byId('errorMessage').textContent = message;
+  toast.classList.remove('hidden');
+  setTimeout(()=> toast.classList.add('hidden'), 5000);
+}
+function updateConnectionStatus(connected) {
+  const status = byId('connectionStatus');
+  if (connected) {
+    status.className = 'flex items-center gap-2 px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm border border-green-500/30';
+    status.innerHTML = '<div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>Connected';
+  } else {
+    status.className = 'flex items-center gap-2 px-3 py-1 bg-red-500/20 text-red-400 rounded-full text-sm border border-red-500/30';
+    status.innerHTML = '<div class="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>Disconnected';
+  }
+}
+
+/* =========================
+   Polling (with backoff on failure)
+========================= */
+let pollTimer = null;
+async function startPolling() {
+  stopPolling();
+  await loadTasks(); // immediate
+  pollTimer = setInterval(async () => {
+    try {
+      await loadTasks();
+    } catch (err) {
+      // if repeated failures, increase interval exponentially up to MAX_BACKOFF
+      pollingAttempts++;
+      const backoff = Math.min(pollingInterval * Math.pow(2, pollingAttempts), MAX_BACKOFF);
+      clearInterval(pollTimer);
+      pollTimer = setInterval(loadTasks, backoff);
+    }
+  }, pollingInterval);
+}
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; pollingAttempts = 0; }
+}
+
+/* =========================
+   Load tasks and update UI
+========================= */
+async function loadTasks() {
+  try {
+    const statusFilter = (currentFilter === 'pending' || currentFilter === 'completed') ? currentFilter : undefined;
+    const priorityFilter = (currentFilter === 'high') ? 'high' : undefined;
+
+    const data = await api.getTasks({ status_filter: statusFilter, priority_filter: priorityFilter });
+    if (!data || !data.success) throw new Error('Invalid API response');
+
+    tasks = data.tasks || [];
+    filteredTasks = tasks; // server-side filtering already applied
+    renderTasks();
+    updateStats(data.stats || {});
+    updateConnectionStatus(true);
+    pollingAttempts = 0; // reset backoff attempt count on success
+  } catch (err) {
+    console.warn('loadTasks failed', err);
+    updateConnectionStatus(false);
+    throw err;
+  }
+}
+
+/* =========================
+   Rendering
+========================= */
+function formatDate(dateString) {
+  if (!dateString) return '';
+  const d = new Date(dateString);
+  if (Number.isNaN(d.getTime())) return dateString;
+  return d.toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+}
+function escapeHtml(text) {
+  if (text === undefined || text === null) return '';
+  const div = document.createElement('div');
+  div.textContent = String(text);
+  return div.innerHTML;
+}
+function getPriorityClass(priority) {
+  return { 'high':'priority-high', 'medium':'priority-medium', 'low':'priority-low' }[priority] || 'priority-medium';
+}
+function getPriorityBadgeClass(priority) {
+  return { 'high':'bg-red-100 text-red-800', 'medium':'bg-yellow-100 text-yellow-800', 'low':'bg-green-100 text-green-800' }[priority] || 'bg-gray-100 text-gray-800';
+}
+
+function renderTasks() {
+  const container = byId('tasksContainer');
+  const emptyState = byId('emptyState');
+
+  if (!filteredTasks || filteredTasks.length === 0) {
+    container.innerHTML = '';
+    emptyState.classList.remove('hidden');
+    return;
+  }
+
+  emptyState.classList.add('hidden');
+
+  const html = filteredTasks.map(task => {
+    const checked = task.status === 'completed' ? 'checked' : '';
+    const titleClass = task.status === 'completed' ? 'line-through text-gray-400' : 'text-gray-800';
+    return `
+      <div class="task-card bg-white rounded-xl shadow-lg p-5 border-l-4 ${getPriorityClass(task.priority)} animate-slide-in" data-id="${escapeHtml(task._id)}" role="article" aria-label="${escapeHtml(task.title)}">
+        <div class="flex items-start gap-4">
+          <input type="checkbox" ${checked} data-action="toggle" data-id="${escapeHtml(task._id)}" class="checkbox-custom w-6 h-6 rounded cursor-pointer mt-1 flex-shrink-0" aria-label="Mark ${escapeHtml(task.title)} completed" />
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3 mb-2">
+              <h3 class="text-lg font-semibold ${titleClass} break-words">${escapeHtml(task.title)}</h3>
+              <span class="badge ${getPriorityBadgeClass(task.priority)} flex-shrink-0">${escapeHtml(task.priority)}</span>
+            </div>
+            ${task.description ? `<p class="text-gray-600 text-sm mb-3 break-words">${escapeHtml(task.description)}</p>` : ''}
+            <div class="flex items-center gap-4 text-sm text-gray-500 flex-wrap">
+              ${task.due_date ? `<span class="flex items-center gap-1">📅 ${formatDate(task.due_date)}</span>` : ''}
+              <span class="flex items-center gap-1">${task.status === 'completed' ? '✅ Completed' : '⏳ Pending'}</span>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <button data-action="delete" data-id="${escapeHtml(task._id)}" class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition transform hover:scale-105 active:scale-95 flex-shrink-0" aria-label="Delete ${escapeHtml(task.title)}">🗑️</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  container.innerHTML = html;
+}
+
+/* =========================
+   Stats
+========================= */
+function updateStats(stats) {
+  byId('totalTasks').textContent = stats.total || 0;
+  byId('pendingTasks').textContent = stats.pending || 0;
+  byId('completedTasks').textContent = stats.completed || 0;
+}
+
+/* =========================
+   Actions (create, toggle, delete, clear completed)
+========================= */
+async function handleAddTask(e) {
+  e.preventDefault();
+  const btn = byId('addTaskBtn');
+  const oldText = byId('addBtnText').textContent;
+  btn.disabled = true;
+  byId('addBtnText').textContent = 'Adding...';
+
+  const title = byId('taskTitle').value.trim();
+  const description = byId('taskDescription').value.trim();
+  const priority = byId('taskPriority').value;
+  const due_date = byId('taskDueDate').value || null;
+
+  if (!title) {
+    showError('Please enter a task title');
+    btn.disabled = false;
+    byId('addBtnText').textContent = oldText;
+    return;
+  }
+
+  try {
+    const res = await api.createTask({ title, description: description || null, priority, due_date });
+    if (res && res.success) {
+      showSuccess('Task added successfully! 🎉');
+      byId('addTaskForm').reset();
+      byId('taskPriority').value = 'medium';
+      await loadTasks();
+    } else {
+      throw new Error(res?.detail || 'Unknown create error');
+    }
+  } catch (err) {
+    console.error('createTask error', err);
+    showError('Failed to add task. Check server or network.');
+  } finally {
+    btn.disabled = false;
+    byId('addBtnText').textContent = oldText;
+  }
+}
+
+async function handleToggleTask(id, checkbox) {
+  // optimistic UI: disable input until response
+  checkbox.disabled = true;
+  const targetTask = tasks.find(t => t._id === id);
+  if (!targetTask) { checkbox.disabled = false; return; }
+  const newStatus = (targetTask.status === 'completed') ? 'pending' : 'completed';
+
+  try {
+    await api.updateTask(id, { status: newStatus });
+    showSuccess(newStatus === 'completed' ? 'Task completed! 🎉' : 'Task marked as pending');
+    await loadTasks();
+  } catch (err) {
+    console.error('toggle error', err);
+    showError('Failed to update task');
+  } finally {
+    checkbox.disabled = false;
+  }
+}
+
+async function handleDeleteTask(id, button) {
+  if (!confirm('Are you sure you want to delete this task?')) return;
+  button.disabled = true;
+  const originalText = button.textContent;
+  button.textContent = 'Deleting...';
+  try {
+    await api.deleteTask(id);
+    showSuccess('Task deleted successfully');
+    await loadTasks();
+  } catch (err) {
+    console.error('delete error', err);
+    showError('Failed to delete task');
+  } finally {
+    button.disabled = false;
+    button.textContent = originalText;
+  }
+}
+
+async function handleClearCompleted() {
+  if (!confirm('Delete all completed tasks? This cannot be undone.')) return;
+  const btn = byId('clearCompletedBtn');
+  btn.disabled = true;
+  const old = btn.textContent;
+  btn.textContent = 'Clearing...';
+  try {
+    const res = await api.clearCompleted();
+    if (res && res.success) {
+      showSuccess(`Deleted ${res.deleted_count} completed tasks`);
+      await loadTasks();
+    } else {
+      throw new Error('clear failed');
+    }
+  } catch (err) {
+    console.error('clear error', err);
+    showError('Failed to clear completed tasks');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = old;
+  }
+}
+
+/* =========================
+   Event wiring
+========================= */
+document.addEventListener('DOMContentLoaded', async () => {
+  // attach form
+  byId('addTaskForm').addEventListener('submit', handleAddTask);
+
+  // filter tab clicks (delegation)
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('bg-blue-600', 'text-white'));
+      btn.classList.add('bg-blue-600', 'text-white');
+      currentFilter = btn.dataset.filter;
+      // reload with filters applied from backend
+      loadTasks().catch(()=>{});
+    });
+  });
+
+  // clear completed
+  byId('clearCompletedBtn').addEventListener('click', handleClearCompleted);
+
+  // tasksContainer delegation for toggle and delete
+  byId('tasksContainer').addEventListener('click', (e) => {
+    const action = e.target.closest('[data-action]');
+    if (!action) return;
+    const act = action.getAttribute('data-action');
+    const id = action.getAttribute('data-id');
+    if (!id) return;
+    if (act === 'toggle') {
+      // checkbox toggle
+      const checkbox = action;
+      handleToggleTask(id, checkbox);
+    } else if (act === 'delete') {
+      handleDeleteTask(id, action);
+    }
+  });
+
+  // start polling
+  try {
+    await startPolling();
+  } catch (err) {
+    console.warn('Initial load failed', err);
+  }
+});
+
+/* =========================
+   Developer note:
+   - If your backend runs on a separate port (e.g., http://localhost:8000),
+     replace the API_URL auto-detection at the top with:
+       const API_URL = 'http://localhost:8000/api';
+   - Ensure CORS is enabled server-side for your frontend origin.
+========================= */
+</script>
+</body>
+</html>
