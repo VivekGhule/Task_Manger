@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ```markdown
 # 🗂️ Task Manager Web Application
 
@@ -19,11 +20,18 @@ The application follows a **clean, modular architecture** with a responsive fron
 - [🏗️ Architecture](#-architecture-highlights)
 - [💻 Installation & Setup](#-project-setup-guide)
 - [👨‍💻 Author](#-author)
+=======
+# 🗂️ Task Manager Web Application
+
+A modern and user-friendly **Task Management Web Application** designed to help users efficiently create, organize, and track their tasks.  
+The application follows a **clean, modular architecture** with a responsive frontend and a robust backend powered by Django and MongoDB.
+>>>>>>> c4e8ecc7e06f1d64ab9e2450d719055789972db2
 
 ---
 
 ## 📌 Overview
 
+<<<<<<< HEAD
 The Task Manager application allows users to securely register, log in, and manage their personal tasks. Each user has **fully isolated task data**, ensuring privacy and data integrity.
 
 The project is built using modern web technologies with a focus on:
@@ -31,11 +39,16 @@ The project is built using modern web technologies with a focus on:
 - 📈 **Scalability** (MongoDB NoSQL Database)
 - 🧩 **Maintainability** (Modular Django Apps)
 - 🎨 **Usability** (Clean Tailwind UI)
+=======
+The Task Manager application enables users to manage daily tasks with features such as task creation, status tracking, filtering, and real-time statistics.  
+It is built using modern web technologies with a focus on **scalability, maintainability, and usability**.
+>>>>>>> c4e8ecc7e06f1d64ab9e2450d719055789972db2
 
 ---
 
 ## 📸 Project Screenshots
 
+<<<<<<< HEAD
 ### 🔐 User Authentication
 
 **Login Page**
@@ -56,11 +69,22 @@ The project is built using modern web technologies with a focus on:
 
 **MongoDB Compass View**
 ![MongoDB Compass View](images/MongoDB.jpeg)
+=======
+### Dashboard
+<img src="images/Dashbord.jpeg" width="800"/> <br/>
+
+### Task Management
+<img src="images/Tasks.jpeg" width="800"/><br/>
+
+### Database (MongoDB)
+<img src="images/MongoDB.jpeg" width="800"/><br/>
+>>>>>>> c4e8ecc7e06f1d64ab9e2450d719055789972db2
 
 ---
 
 ## 🚀 Key Features
 
+<<<<<<< HEAD
 ### 👤 Authentication
 * User Registration & Login
 * Secure Session-based Authentication
@@ -84,11 +108,23 @@ The project is built using modern web technologies with a focus on:
 * **Responsive:** Optimized for Desktop and Mobile.
 * **Styling:** Modern styling with Tailwind CSS and gradient accents.
 * **Feedback:** Toast notifications for success/error actions.
+=======
+- Create tasks with title, description, priority, and due date
+- Update and delete existing tasks
+- Mark tasks as completed or pending
+- Filter tasks by status and priority
+- Dashboard with real-time task statistics
+- Responsive UI for desktop and mobile devices
+- RESTful backend architecture
+- Secure and scalable MongoDB integration
+- Unified frontend and backend (no CORS issues)
+>>>>>>> c4e8ecc7e06f1d64ab9e2450d719055789972db2
 
 ---
 
 ## 🛠️ Technology Stack
 
+<<<<<<< HEAD
 | Category | Technologies |
 | :--- | :--- |
 | **Frontend** | HTML5, Tailwind CSS, JavaScript (Vanilla) |
@@ -210,3 +246,30 @@ Open your browser and visit:
 ```
 
 ```
+=======
+### Frontend
+- HTML5  
+- Tailwind CSS  
+- JavaScript (Vanilla JS)
+
+### Backend
+- Python  
+- Django  
+
+### Database
+- MongoDB (NoSQL)  
+- PyMongo  
+
+### Tools & Utilities
+- Git & GitHub  
+- Postman  
+- Python-dotenv  
+
+---
+
+
+
+
+
+
+>>>>>>> c4e8ecc7e06f1d64ab9e2450d719055789972db2
