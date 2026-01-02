@@ -36,6 +36,44 @@
         .animate-slide-in { animation: slide-in 0.3s ease-out forwards; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+         /* Modern Scrollbar Styling */
+        .modern-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modern-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .modern-scroll::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #9333ea, #7c3aed);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .modern-scroll::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #7c3aed, #6d28d9);
+            width: 10px;
+        }
+
+        /* Dark mode scrollbar */
+        .dark .modern-scroll::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #a855f7, #9333ea);
+        }
+
+        .dark .modern-scroll::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #9333ea, #7c3aed);
+        }
+
+        /* Firefox scrollbar */
+        .modern-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: #9333ea transparent;
+        }
+
+        .dark .modern-scroll {
+            scrollbar-color: #a855f7 transparent;
+        }
     </style>
     <script>
         tailwind.config = { darkMode: "class" };
@@ -194,61 +232,64 @@
     <div id="meetings-content" class="tab-content">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div class="grid lg:grid-cols-3 gap-10">
-                <div class="lg:col-span-1">
-                    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 sticky top-20 max-h-[calc(100vh-8rem)] overflow-y-auto border border-gray-100 dark:border-gray-700">
-                        <h3 class="text-2xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
-                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            Schedule Meeting
-                        </h3>
-                        <form id="addMeetingForm" class="space-y-6">
-                            {% csrf_token %}
-                            <div>
-                                <label for="meetingTitle" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Meeting Title *</label>
-                                <input id="meetingTitle" type="text" placeholder="Team Sync" required class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition text-gray-800 dark:text-gray-100" />
-                            </div>
-                            <div>
-                                <label for="meetingCategory" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
-                                <select id="meetingCategory" class="w-full px-4 py-3 rounded-xl bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition text-gray-800 dark:text-gray-100">
-                                    <option value="work">💼 Work</option>
-                                    <option value="personal">👤 Personal</option>
-                                    <option value="team">👥 Team</option>
-                                    <option value="client">🤝 Client</option>
-                                    <option value="other">📌 Other</option>
-                                </select>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label for="meetingDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date *</label>
-                                    <input type="date" id="meetingDate" required class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition text-gray-800 dark:text-gray-100" />
-                                </div>
-                                <div>
-                                    <label for="meetingTime" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Time *</label>
-                                    <input type="time" id="meetingTime" required class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition text-gray-800 dark:text-gray-100" />
-                                </div>
-                            </div>
-                            <div>
-                                <label for="meetingDuration" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Duration (minutes)</label>
-                                <input type="number" id="meetingDuration" value="60" min="15" step="15" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition text-gray-800 dark:text-gray-100" />
-                            </div>
-                            <div>
-                                <label for="meetingLink" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Meeting Link</label>
-                                <input type="url" id="meetingLink" placeholder="https://zoom.us/j/..." class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition text-gray-800 dark:text-gray-100" />
-                            </div>
-                            <div>
-                                <label for="meetingDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
-                                <textarea id="meetingDescription" placeholder="Add agenda and notes..." rows="3" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition resize-none text-gray-800 dark:text-gray-100"></textarea>
-                            </div>
-                            <button type="submit" id="addMeetingBtn" class="w-full bg-purple-600 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:bg-purple-700 transition transform hover:-translate-y-0.5 active:scale-[0.98] flex items-center justify-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                </svg>
-                                <span id="addMeetingBtnText">Schedule Meeting</span>
-                            </button>
-                        </form>
+                <div class="max-w-4xl mx-auto">
+        <div class="lg:col-span-1">
+            <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 sticky top-20 max-h-[calc(100vh-8rem)] overflow-y-auto modern-scroll border border-gray-100 dark:border-gray-700">
+                <h3 class="text-2xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    Schedule Meeting
+                </h3>
+                <form id="addMeetingForm" class="space-y-6">
+                    <div>
+                        <label for="meetingTitle" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Meeting Title *</label>
+                        <input id="meetingTitle" type="text" placeholder="Team Sync" required class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition text-gray-800 dark:text-gray-100" />
                     </div>
-                </div>
+                    <div>
+                        <label for="meetingCategory" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
+                        <select id="meetingCategory" class="w-full px-4 py-3 rounded-xl bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition text-gray-800 dark:text-gray-100">
+                            <option value="work">💼 Work</option>
+                            <option value="personal">👤 Personal</option>
+                            <option value="team">👥 Team</option>
+                            <option value="client">🤝 Client</option>
+                            <option value="other">📌 Other</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="meetingDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date *</label>
+                            <input type="date" id="meetingDate" required class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition text-gray-800 dark:text-gray-100" />
+                        </div>
+                        <div>
+                            <label for="meetingTime" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Time *</label>
+                            <input type="time" id="meetingTime" required class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition text-gray-800 dark:text-gray-100" />
+                        </div>
+                    </div>
+                    <div>
+                        <label for="meetingDuration" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Duration (minutes)</label>
+                        <input type="number" id="meetingDuration" value="60" min="15" step="15" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition text-gray-800 dark:text-gray-100" />
+                    </div>
+                    <div>
+                        <label for="meetingLink" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Meeting Link</label>
+                        <input type="url" id="meetingLink" placeholder="https://zoom.us/j/..." class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition text-gray-800 dark:text-gray-100" />
+                    </div>
+                    <div>
+                        <label for="meetingDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+                        <textarea id="meetingDescription" placeholder="Add agenda and notes..." rows="3" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition resize-none text-gray-800 dark:text-gray-100"></textarea>
+                    </div>
+                    <button type="submit" id="addMeetingBtn" class="w-full bg-purple-600 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:bg-purple-700 transition transform hover:-translate-y-0.5 active:scale-[0.98] flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span id="addMeetingBtnText">Schedule Meeting</span>
+                    </button>
+                </form>
+
+                
+            </div>
+        </div>
+    </div>
 
                 <div class="lg:col-span-2 space-y-8">
                     <div class="grid md:grid-cols-3 gap-6">

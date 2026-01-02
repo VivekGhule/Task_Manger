@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from django.conf import settings
 from datetime import datetime
 from bson import ObjectId
+ 
 
 
 class MeetingManager:
@@ -48,7 +49,6 @@ class MeetingManager:
             meeting = self.collection.find_one({
                 '_id': ObjectId(meeting_id),
                 'user_id': str(user_id),
-
             })
             if meeting:
                 meeting['_id'] = str(meeting['_id'])
@@ -91,13 +91,20 @@ class MeetingManager:
     def delete_meeting(self, meeting_id, user_id):
         """Delete a meeting"""
         try:
-            result = self.collection.delete_one({
-                '_id': ObjectId(meeting_id),
-                'user_id': str(user_id),
+            # Try ObjectId first
+            query = {"user_id": user_id}
 
-            })
-            return result.deleted_count > 0
-        except:
+            try:
+                query["_id"] = ObjectId(meeting_id)
+            except Exception:
+                # Fallback if _id is stored as string
+                query["_id"] = meeting_id
+
+            result = self.collection.delete_one(query)
+            return result.deleted_count == 1
+
+        except Exception as e:
+            print("DELETE ERROR:", e)
             return False
 
 

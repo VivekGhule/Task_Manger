@@ -5,5 +5,6 @@ app_name = 'meetings'
 
 urlpatterns = [
     path('api/meetings/', views.meeting_list_create, name='meeting-list-create'),
-    path('api/meetings/<str:meeting_id>/', views.meeting_detail, name='meeting-detail'),
+    path("api/meetings/<str:meeting_id>/", views.meeting_detail),
+    
 ]
