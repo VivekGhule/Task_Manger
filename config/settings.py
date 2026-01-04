@@ -1,16 +1,26 @@
+# Task_Manager/config/settings.py
 from pathlib import Path
 from decouple import config
 import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Security Settings
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-#o)i9#j9k&(phe+w&124q8fyb3zn_j*eq9$k*o5rh&!#4l$6(*')
-DEBUG = config('DEBUG', default=False, cast=bool)
+# ==========================
+# SECURITY SETTINGS
+# ==========================
+SECRET_KEY = config(
+    'SECRET_KEY',
+    default='django-insecure-#o)i9#j9k&(phe+w&124q8fyb3zn_j*eq9$k*o5rh&!#4l$6(*'
+)
 
-ALLOWED_HOSTS = ['*']  # In production, specify your domain
+# 🔴 IMPORTANT: DEBUG MUST BE TRUE FOR LOCAL
+DEBUG = True
 
-# Application definition
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+# ==========================
+# APPLICATIONS
+# ==========================
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -22,12 +32,14 @@ INSTALLED_APPS = [
     # Local apps
     'apps.users.apps.UsersConfig',
     'apps.tasks.apps.TasksConfig',
-    'apps.meetings'
+    'apps.meetings',
 ]
 
+# ==========================
+# MIDDLEWARE
+# ==========================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add WhiteNoise for static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -38,6 +50,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 
+# ==========================
+# TEMPLATES
+# ==========================
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -66,19 +81,15 @@ DATABASES = {
 }
 
 # ==========================
-# MongoDB Configuration
+# ✅ MONGODB (LOCAL)
 # ==========================
-MONGODB_URI = config('MONGODB_URI', default='mongodb+srv://vivekghule777:password@taskcluster.y2hepor.mongodb.net/task_manager?appName=TaskCluster')
-MONGO_DB_NAME = config('MONGO_DB_NAME', default='task_manager')
+MONGODB_URI = "mongodb://localhost:27017/"
+MONGO_DB_NAME = "task_manager"
 
 # ==========================
 # AUTH CONFIG
 # ==========================
 AUTH_USER_MODEL = 'users.User'
-
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-]
 
 LOGIN_URL = '/auth/login/'
 LOGIN_REDIRECT_URL = '/'
@@ -98,7 +109,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # INTERNATIONALIZATION
 # ==========================
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 USE_I18N = True
 USE_TZ = True
 
@@ -106,21 +117,25 @@ USE_TZ = True
 # STATIC FILES
 # ==========================
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # For production
-STATICFILES_DIRS = [BASE_DIR / 'static'] if os.path.exists(BASE_DIR / 'static') else []
-
-# WhiteNoise configuration for serving static files
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ==========================
-# Security Settings for Production
+# ❌ REMOVE SSL SETTINGS FOR LOCAL
 # ==========================
-if not DEBUG:
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    X_FRAME_OPTIONS = 'DENY'
+# DO NOT ENABLE SSL ON LOCALHOST
+
+
+# ==========================
+# EMAIL CONFIGURATION
+# ==========================
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = 'simple1php@gmail.com'
+EMAIL_HOST_PASSWORD = 'zdgnttupefswbpaq'
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

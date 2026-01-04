@@ -404,3 +404,5 @@ Distributed under the MIT License. See `LICENSE` file for more information.
 [Report Bug](https://github.com/yourusername/task-manager/issues) • [Request Feature](https://github.com/yourusername/task-manager/issues)
 
 </div>
+
+<!-- Contributed minor improvements via pull request. -->

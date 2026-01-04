@@ -1,12 +1,14 @@
+# Task_Manager\apps\meetings\models.py
 from pymongo import MongoClient
 from django.conf import settings
 from datetime import datetime
 from bson import ObjectId
- 
+from datetime import datetime, timedelta, timezone   # Updated for timezone safety
+
 
 
 class MeetingManager:
-    """Manager class to handle MongoDB operations for meetings"""
+    # """Manager class to handle MongoDB operations for meetings"""
     
     def __init__(self):
         self.client = MongoClient(settings.MONGODB_URI)
@@ -18,7 +20,7 @@ class MeetingManager:
         self.collection.create_index([('meeting_date', 1), ('meeting_time', 1)])
     
     def create_meeting(self, user_id, data):
-        """Create a new meeting"""
+        # """Create a new meeting"""
         meeting = {
             'user_id': str(user_id),
             'title': data['title'],
@@ -28,8 +30,8 @@ class MeetingManager:
             'meeting_date': data['meeting_date'],
             'meeting_time': data['meeting_time'],
             'duration': data.get('duration', 60),
-            'created_at': datetime.utcnow(),
-            'updated_at': datetime.utcnow(),
+            'created_at': datetime.now(timezone.utc),
+            'updated_at': datetime.now(timezone.utc),
         }
         
         result = self.collection.insert_one(meeting)
@@ -37,14 +39,14 @@ class MeetingManager:
         return meeting
     
     def get_user_meetings(self, user_id):
-        """Get all meetings for a user"""
+        # """Get all meetings for a user"""
         meetings = list(self.collection.find({'user_id': user_id}).sort('meeting_date', -1))
         for meeting in meetings:
             meeting['_id'] = str(meeting['_id'])
         return meetings
     
     def get_meeting_by_id(self, meeting_id, user_id):
-        """Get a specific meeting by ID"""
+        # """Get a specific meeting by ID"""
         try:
             meeting = self.collection.find_one({
                 '_id': ObjectId(meeting_id),
@@ -57,10 +59,10 @@ class MeetingManager:
             return None
     
     def update_meeting(self, meeting_id, user_id, data):
-        """Update a meeting"""
+        # """Update a meeting"""
         try:
             update_data = {
-                'updated_at': datetime.utcnow()
+                'updated_at': datetime.now(timezone.utc)
             }
             
             # Update only provided fields
@@ -89,7 +91,7 @@ class MeetingManager:
             return False
     
     def delete_meeting(self, meeting_id, user_id):
-        """Delete a meeting"""
+        # """Delete a meeting"""
         try:
             # Try ObjectId first
             query = {"user_id": user_id}

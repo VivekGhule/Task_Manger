@@ -1,3 +1,4 @@
+//Task_Manager\static\main.js
 document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------------- ELEMENTS ---------------- */
@@ -6,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const descInput = document.getElementById("taskDescription");
     const priorityInput = document.getElementById("taskPriority");
     const dueDateInput = document.getElementById("taskDueDate");
+    const dueTimeInput = document.getElementById("taskDueTime");
     const taskContainer = document.getElementById("tasksContainer");
     const emptyState = document.getElementById("emptyState");
     const addBtnText = document.getElementById("addBtnText");
@@ -108,6 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
             description: descInput.value.trim(),
             priority: priorityInput.value,
             due_date: dueDateInput.value,
+            due_time: dueTimeInput.value,
             completed: false
         };
 
@@ -345,8 +348,48 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const isOverdue = date < today;
         const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        return isOverdue ? `<span class="text-red-500">⚠️ ${formatted} (Overdue)</span>` : `📅 ${formatted}`;
+        return isOverdue ? `<span class="text-red-500">⚠️ 📅 ${formatted} (Overdue)</span>` : `📅 ${formatted}`;
     }
+
+   /* ---------------- FORMAT TIME WITH OVERDUE CHECK ---------------- */
+    function formatTime(timeString, dateString) {
+        if (!timeString || !dateString) return "";
+    
+        const now = new Date();
+    
+        // ----- Parse task date -----
+        const taskDate = new Date(dateString);
+        taskDate.setHours(0, 0, 0, 0);
+    
+        // ----- Parse task time -----
+        const [h, m] = timeString.split(":").map(Number);
+        const taskDateTime = new Date(taskDate);
+        taskDateTime.setHours(h, m, 0, 0);
+    
+        // ----- Format time (12-hour) -----
+        let hours = h % 12 || 12;
+        const period = h >= 12 ? "PM" : "AM";
+        const minutes = m.toString().padStart(2, "0");
+    
+        const formattedTime = `⏰ ${hours}:${minutes} ${period}`;
+    
+        // ----- Normalize today's date -----
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+    
+        // ----- CONDITIONS -----
+        const isPastDate = taskDate < today;
+        const isTodayPastTime = taskDate.getTime() === today.getTime() && taskDateTime < now;
+    
+        if (isPastDate || isTodayPastTime) {
+            return `<span class="text-red-500 font-semibold">⚠️ ${formattedTime} (Time Passed)</span>`;
+        }
+    
+        return formattedTime;
+    }
+
+
+
 
     /* ---------------- UPDATE STATS ---------------- */
     function updateStats() {
@@ -405,6 +448,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <div class="flex flex-wrap gap-2 items-center">
                                     ${getPriorityBadge(task.priority)}
                                     ${task.due_date ? `<span class="text-xs text-gray-500">${formatDate(task.due_date)}</span>` : ""}
+                                    ${task.due_time ? `<span class="text-xs text-gray-500">${formatTime(task.due_time,task.due_date)}</span>` : ""}
                                 </div>
                             </div>
                         </div>
