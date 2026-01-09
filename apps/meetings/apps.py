@@ -1,3 +1,5 @@
+# Task_Manager\apps\meetings\apps.py
+
 from django.apps import AppConfig
 
 class MeetingsConfig(AppConfig):

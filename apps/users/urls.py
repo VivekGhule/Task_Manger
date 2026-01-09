@@ -1,3 +1,4 @@
+# Task_Manager\apps\tasks\urls.py
 from django.urls import path
 from .views import login_view, register_view, logout_view
 from django.contrib.auth.views import LogoutView

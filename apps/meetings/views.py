@@ -1,3 +1,4 @@
+# Task_Manager\apps\meetings\views.py
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
@@ -10,7 +11,7 @@ from .models import meeting_manager  # Assuming this handles MongoDB logic
 @login_required
 @require_http_methods(["GET", "POST"])
 def meeting_list_create(request):
-    """List all meetings or create a new meeting"""
+    # """List all meetings or create a new meeting"""
     
     # Consistent ID handling (String for MongoDB)
     user_id_str = str(request.user.id)
@@ -82,7 +83,7 @@ def meeting_list_create(request):
 @login_required
 @require_http_methods(["GET", "PUT", "DELETE"])
 def meeting_detail(request, meeting_id):
-    """Get, update, or delete a specific meeting"""
+    # """Get, update, or delete a specific meeting"""
     user_id_str = str(request.user.id)
     
     if request.method == "GET":

@@ -1,3 +1,4 @@
+# Task_Manager\apps\tasks\urls.py
 from django.urls import path
 from .views import dashboard, tasks_api, task_detail_api
 

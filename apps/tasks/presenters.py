@@ -1,6 +1,8 @@
+# Task_Manager\apps\tasks\presenters.py
 from bson import ObjectId
 from datetime import datetime
 from .models import tasks_collection
+from datetime import datetime, timedelta, timezone   # Updated for timezone safety
 
 class TaskPresenter:
 
@@ -11,9 +13,10 @@ class TaskPresenter:
             "description": data.get("description"),
             "priority": data.get("priority"),
             "due_date": data.get("due_date"),
+            "due_time": data.get("due_time"),
             "is_completed": False,
             "user_id": user_id,
-            "created_at": datetime.utcnow()
+            "created_at": datetime.now(timezone.utc)
         })
 
     @staticmethod
